@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../Services/api';
 
@@ -73,8 +73,32 @@ export const UserProvider = ({ children }: IDefaultProviderProps) => {
   const userLogout = () => {
     setUser(null);
     localStorage.removeItem('@TOKEN');
+    localStorage.removeItem('@USERID');
     navigate('/');
   };
+
+  useEffect(() => {
+    const userToken = localStorage.getItem('@TOKEN');
+    const userId = localStorage.getItem('@USERID');
+    console.log(userId);
+
+    if (userToken) {
+      const autoLogin = async () => {
+        try {
+          const response = await api.get(`/users/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          });
+          setUser(response.data);
+          navigate('/shop');
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      autoLogin();
+    }
+  }, []);
 
   return (
     <UserContext.Provider

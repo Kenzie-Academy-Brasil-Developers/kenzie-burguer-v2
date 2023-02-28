@@ -6,7 +6,13 @@ import { StyledParagraph } from '../../../styles/typography';
 import { CartContext } from '../../../providers/CartContext';
 
 const CartProductList = () => {
-  const { currentProduct } = useContext(CartContext);
+  const { currentProduct, setCurrentProduct } = useContext(CartContext);
+
+  const totalCart = currentProduct.reduce(
+    (acc, valueTotal) => valueTotal.price + acc,
+    0
+  );
+
   return (
     <StyledCartProductList>
       {currentProduct.length > 0 && (
@@ -21,9 +27,15 @@ const CartProductList = () => {
         <StyledParagraph>
           <strong>Total</strong>
         </StyledParagraph>
-        <StyledParagraph className='total'>R$ 14,00</StyledParagraph>
+        <StyledParagraph className='total'>
+          {totalCart.toFixed(2)}
+        </StyledParagraph>
       </div>
-      <StyledButton $buttonSize='default' $buttonStyle='gray'>
+      <StyledButton
+        $buttonSize='default'
+        $buttonStyle='gray'
+        onClick={() => setCurrentProduct([])}
+      >
         Remover todos
       </StyledButton>
     </StyledCartProductList>
