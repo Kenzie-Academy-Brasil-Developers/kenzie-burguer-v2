@@ -61,6 +61,7 @@ export const UserProvider = ({ children }: IDefaultProviderProps) => {
       const response = await api.post('/login', formData);
       setUser(response.data.user);
       localStorage.setItem('@TOKEN', response.data.accessToken);
+      localStorage.setItem('@USERID', response.data.user.id);
       console.log(response.data.user);
       navigate('/shop');
     } catch (error) {
