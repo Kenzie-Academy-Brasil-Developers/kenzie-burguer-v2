@@ -4,13 +4,13 @@ import { StyledProductList } from './style';
 import { CartContext } from '../../providers/CartContext';
 
 const ProductList = () => {
-  const { product } = useContext(CartContext);
+  const { filteredProducts } = useContext(CartContext);
 
   return (
     <div>
-      {product.length > 0 && (
+      {filteredProducts.length > 0 && (
         <StyledProductList>
-          {product.map((prod) => (
+          {filteredProducts.map((prod) => (
             <ProductCard prod={prod} key={prod.id} />
           ))}
         </StyledProductList>

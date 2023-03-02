@@ -1,4 +1,5 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { UserContext } from './UserContext';
 import { api } from '../Services/api';
 
 export const CartContext = createContext<IProductCart>({} as IProductCart);
@@ -26,6 +27,9 @@ interface IProductCart {
   setModal: React.Dispatch<React.SetStateAction<boolean>>;
   addProduct: (productCart: IProduct) => void;
   removeProduct: (currentID: number) => void;
+  filterProduct: (products: string) => void;
+  searchValue: string;
+  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const CartProvider = ({ children }: IDefaultProviderProps) => {
@@ -33,6 +37,9 @@ export const CartProvider = ({ children }: IDefaultProviderProps) => {
   const [filteredProducts, setFilteredProducts] = useState([] as IProduct[]);
   const [currentProduct, setCurrentProduct] = useState([] as IProduct[]);
   const [modal, setModal] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState('');
+
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     async function getProduct() {
@@ -45,12 +52,13 @@ export const CartProvider = ({ children }: IDefaultProviderProps) => {
           },
         });
         setProduct(response.data);
+        setFilteredProducts(response.data);
       } catch (error) {
         console.log(error);
       }
     }
     getProduct();
-  }, []);
+  }, [user]);
 
   const addProduct = (productCart: IProduct) => {
     if (!currentProduct.some((products) => products.id === productCart.id)) {
@@ -63,6 +71,17 @@ export const CartProvider = ({ children }: IDefaultProviderProps) => {
       (products) => products.id !== currentID
     );
     setCurrentProduct(newCart);
+  };
+
+  const filterProduct = (searchValueInput: string) => {
+    if (searchValueInput === '') {
+      setFilteredProducts([...product]);
+    } else {
+      const ListFilterProduct = product.filter((productList) =>
+        productList.name.toLowerCase().includes(searchValueInput.toLowerCase())
+      );
+      setFilteredProducts(ListFilterProduct);
+    }
   };
 
   return (
@@ -78,6 +97,9 @@ export const CartProvider = ({ children }: IDefaultProviderProps) => {
         setModal,
         addProduct,
         removeProduct,
+        filterProduct,
+        searchValue,
+        setSearchValue,
       }}
     >
       {children}

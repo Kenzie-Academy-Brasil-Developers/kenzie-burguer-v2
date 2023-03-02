@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { createContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../Services/api';
@@ -46,7 +47,7 @@ export const UserProvider = ({ children }: IDefaultProviderProps) => {
       const response = await api.post('/users', formData);
       setUser(response.data.user);
       localStorage.setItem('@TOKEN', response.data.accessToken);
-      console.log(response.data.user);
+      localStorage.setItem('@USERID', response.data.user.id);
       navigate('/shop');
     } catch (error) {
       console.log(error);
@@ -62,7 +63,6 @@ export const UserProvider = ({ children }: IDefaultProviderProps) => {
       setUser(response.data.user);
       localStorage.setItem('@TOKEN', response.data.accessToken);
       localStorage.setItem('@USERID', response.data.user.id);
-      console.log(response.data.user);
       navigate('/shop');
     } catch (error) {
       console.log(error);
@@ -81,7 +81,6 @@ export const UserProvider = ({ children }: IDefaultProviderProps) => {
   useEffect(() => {
     const userToken = localStorage.getItem('@TOKEN');
     const userId = localStorage.getItem('@USERID');
-    console.log(userId);
 
     if (userToken) {
       const autoLogin = async () => {
@@ -99,6 +98,29 @@ export const UserProvider = ({ children }: IDefaultProviderProps) => {
       };
       autoLogin();
     }
+  }, []);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const userToken = localStorage.getItem('@TOKEN');
+      const userId = localStorage.getItem('@USERID');
+      if (!userToken) {
+        return navigate('/');
+      }
+
+      try {
+        const response = await api.get(`/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getUser();
   }, []);
 
   return (
